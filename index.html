@@ -96,10 +96,10 @@ h1{font-weight:900;font-size:1.75rem;line-height:1.3;color:#fff;margin-top:10px}
 
 /* ظهور الصفحة كأنها صورة تتحمّض بعد اللقطة */
 .page,.share{opacity:0}
-body.live .page{animation:develop 1.1s var(--ease) forwards}
-body.live .share{animation:fade .6s .6s forwards}
-body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:calc(var(--i) * 60ms + 250ms)}
-@keyframes develop{0%{opacity:1;filter:blur(7px);transform:scale(1.06)}100%{opacity:1;filter:none;transform:none}}
+body.live .page{animation:develop .6s var(--ease) forwards}
+body.live .share{animation:fade .4s .3s forwards}
+body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:calc(var(--i) * 40ms + 80ms)}
+@keyframes develop{0%{opacity:1;filter:blur(5px);transform:scale(1.04)}100%{opacity:1;filter:none;transform:none}}
 @keyframes fade{to{opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
 
@@ -134,22 +134,17 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
 .cam #lamp{opacity:.55}
 .cam.recoil{animation:recoil .34s var(--ease)}
 @keyframes recoil{30%{transform:translateY(3px) scale(.985)}}
-.cam.zoom{transition:transform .72s cubic-bezier(.65,0,.85,.35);will-change:transform}
 .shot h2{font-weight:900;font-size:clamp(28px,8vw,36px);color:#fff;line-height:1.2}
 .cta{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;background:var(--gold);color:var(--navy-deep);font-weight:800;font-size:1.02rem;position:relative}
 .cta::before{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid var(--gold);animation:pulse 1.8s var(--ease) infinite}
 .cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @keyframes pulse{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.18,1.5)}}
 
-/* لحظة التصوير: الغالق ينضغط، الريش تنقفل، ثم ندخل في العدسة */
+/* لحظة التصوير: الغالق ينضغط، الريش تنقفل ثم تنفتح على الشاشة */
 #intro{overflow:hidden}
 #intro.shoot #sbtn{transform:translateY(4px)}
 #intro.shoot #lamp{opacity:1}
 #intro.shoot .shot{animation:none}
-#intro .kicker,#intro .shot h2,#intro .cta,#intro .vf{transition:opacity .3s}
-#intro.zooming .kicker,#intro.zooming .shot h2,#intro.zooming .cta,#intro.zooming .vf{opacity:0}
-#intro.zooming .cam{filter:none}
-#intro.zooming .cam svg [filter]{display:none}
 .irisfx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;display:none}
 .irisfx.on{display:block}
 
@@ -161,7 +156,6 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
   .shot,.cta::before,.vf .rec::before{animation:none}
   body.live .page{animation:fade .3s forwards}
   body.live .links li{animation:none}
-  .cam.zoom{transition:none}
 }
 </style>
 </head>
@@ -387,27 +381,15 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
     intro.classList.add('shoot');
     if(reduce){setTimeout(reveal,150);return}
     cam.classList.add('recoil');
-    // اللقطة: الريش تنقفل وتنفتح
-    var a=lr;
-    tween(90,easeIn,function(k){setLens(a+(1-a)*k)},function(){tween(220,easeOut,function(k){setLens(1+(REST-1)*k)})});
-    // الدخول في العدسة
-    setTimeout(function(){
-      var sv=cam.querySelector('svg').getBoundingClientRect(),cr=cam.getBoundingClientRect();
-      var cx=sv.left+sv.width*232/400,cy=sv.top+sv.height*168/290;
-      var W=innerWidth,H=innerHeight,far=Math.max(Math.hypot(cx,cy),Math.hypot(W-cx,cy),Math.hypot(cx,H-cy),Math.hypot(W-cx,H-cy));
-      var S=far/(sv.width*LR/400)*1.08;
-      cam.classList.remove('recoil');
-      cam.style.transformOrigin=(cx-cr.left)+'px '+(cy-cr.top)+'px';
-      intro.classList.add('zooming');cam.classList.add('zoom');
-      requestAnimationFrame(function(){cam.style.transform='scale('+S+')'});
-      var b=lr;tween(620,easeIn,function(k){setLens(b*(1-k))});
-      setTimeout(function(){
-        // الريش تنفتح على الشاشة كاملة وتظهر الحسابات
-        var fxB=blades(fxg,['fxA','fxB'],'rgba(250,228,140,.6)',1.4),R=far*1.05;
-        drawIris(fxB,cx,cy,0,R,R*2.4);fx.classList.add('on');reveal();
-        tween(950,easeIO,function(k){drawIris(fxB,cx,cy,R*k,R,R*2.4)},function(){fx.classList.remove('on');fxg.innerHTML=''});
-      },740);
-    },380);
+    // لقطة سريعة: الريش تنقفل، ثم تنفتح على الشاشة وتظهر الحسابات
+    var a=lr,sv=cam.querySelector('svg').getBoundingClientRect();
+    var cx=sv.left+sv.width*232/400,cy=sv.top+sv.height*168/290;
+    var W=innerWidth,H=innerHeight,R=Math.max(Math.hypot(cx,cy),Math.hypot(W-cx,cy),Math.hypot(cx,H-cy),Math.hypot(W-cx,H-cy))*1.05;
+    tween(110,easeIn,function(k){setLens(a*(1-k))},function(){
+      var fxB=blades(fxg,['fxA','fxB'],'rgba(250,228,140,.6)',1.4);
+      drawIris(fxB,cx,cy,0,R,R*2.4);fx.classList.add('on');reveal();
+      tween(520,easeOut,function(k){drawIris(fxB,cx,cy,R*k,R,R*2.4)},function(){fx.classList.remove('on');fxg.innerHTML=''});
+    });
   }
   shotBtn.addEventListener('click',enter);
 
