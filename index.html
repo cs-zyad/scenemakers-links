@@ -107,7 +107,7 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
 #intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;height:100dvh;
   padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));
   background:radial-gradient(70vmax 70vmax at 50% 42%,rgba(14,43,82,.95),var(--navy-deep) 70%)}
-#intro.gone{visibility:hidden;opacity:0;pointer-events:none}
+#intro.gone{visibility:hidden;opacity:0;pointer-events:none;transition:opacity .35s,visibility 0s .35s}
 #intro::before{content:"";position:absolute;inset:0;opacity:.05;pointer-events:none;
   background-image:var(--pattern),var(--pattern);background-size:92px 92px;background-position:0 0,46px 46px}
 /* أركان عدسة الكاميرا (viewfinder) */
@@ -145,8 +145,21 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
 #intro.shoot #sbtn{transform:translateY(4px)}
 #intro.shoot #lamp{opacity:1}
 #intro.shoot .shot{animation:none}
-.irisfx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;display:none}
-.irisfx.on{display:block}
+/* صورة بولارويد تطلع من الكاميرا = صفحة الحسابات */
+.cam{isolation:isolate}
+.cam svg{position:relative;z-index:1}
+.pola{position:absolute;z-index:0;left:58%;top:29%;width:36%;aspect-ratio:.86;transform:translate(-50%,0);background:#fbfaf6;border-radius:3px;padding:6% 6% 0;
+  box-shadow:0 10px 26px rgba(0,0,0,.45);display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.2,.9,.25,1.15)}
+.pola .ph{position:relative;flex:1;border-radius:1px;overflow:hidden;background:radial-gradient(120% 90% at 80% 0,rgba(184,91,32,.4),transparent 60%),linear-gradient(180deg,var(--navy-soft),var(--navy-deep));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7%}
+.pola .ph img{width:30%;height:auto;border-radius:50%;box-shadow:0 0 0 2px var(--gold)}
+.pola .ph i{display:block;width:70%;height:9%;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);position:relative}
+.pola .ph i::before{content:"";position:absolute;right:3%;top:50%;width:14%;aspect-ratio:1;transform:translateY(-50%);border-radius:50%;background:var(--gold)}
+.pola .ph::after{content:"";position:absolute;inset:0;background:#ece6d4;transition:opacity .5s ease}
+.pola.dev .ph::after{opacity:0}
+.pola b{display:block;padding:7% 0 9%;text-align:center;font-weight:800;font-size:clamp(9px,2.6vw,12px);color:var(--navy);line-height:1}
+#intro.shoot .pola{transform:translate(-50%,-112%) rotate(-5deg)}
+.pola-fly{position:fixed;z-index:65;margin:0;pointer-events:none;transform-origin:center}
 
 /* إشعار */
 .toast{position:fixed;bottom:24px;left:50%;z-index:70;transform:translate(-50%,20px);background:#fff;color:var(--navy-deep);font-weight:700;font-size:14px;padding:10px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .3s,transform .35s var(--ease);box-shadow:0 14px 40px rgba(0,0,0,.4)}
@@ -166,7 +179,7 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
   <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="rec">REC</span><span class="exif">ISO 400 · f/1.8 · 1/250</span></div>
   <button class="shot" id="shoot" type="button" aria-label="اضغط على الكاميرا لتصوّر وتدخل إلى حسابات صناع المشهد">
     <span class="kicker">SCENE MAKERS</span>
-    <span class="cam" aria-hidden="true"><svg viewBox="0 0 400 290" xmlns="http://www.w3.org/2000/svg">
+    <span class="cam" aria-hidden="true"><span class="pola" id="pola"><span class="ph"><img src="img/lens.png" alt=""><i></i><i></i><i></i></span><b>صناع المشهد</b></span><svg viewBox="0 0 400 290" xmlns="http://www.w3.org/2000/svg">
 <defs>
   <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3d45"/><stop offset=".14" stop-color="#22252b"/><stop offset=".6" stop-color="#141519"/><stop offset="1" stop-color="#060708"/></linearGradient>
   <linearGradient id="gTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a6e78"/><stop offset=".3" stop-color="#40434c"/><stop offset="1" stop-color="#1e2026"/></linearGradient>
@@ -272,10 +285,6 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
     <span class="cta"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>اضغط للتصوير</span>
   </button>
 </div>
-<svg class="irisfx" id="irisfx" aria-hidden="true"><defs>
-  <linearGradient id="fxA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9cb55"/><stop offset=".5" stop-color="#b08f12"/><stop offset="1" stop-color="#6e5a07"/></linearGradient>
-  <linearGradient id="fxB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6b738"/><stop offset=".6" stop-color="#9a7d0d"/><stop offset="1" stop-color="#5a4904"/></linearGradient>
-</defs><g id="irisfxg"></g></svg>
 
 <button class="share" id="share" type="button" aria-label="مشاركة الصفحة"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
 
@@ -328,7 +337,7 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
 
 <script>
 (function(){
-  var intro=document.getElementById('intro'),cam=document.querySelector('.cam'),fx=document.getElementById('irisfx'),fxg=document.getElementById('irisfxg'),lens=document.getElementById('iris');
+  var intro=document.getElementById('intro'),cam=document.querySelector('.cam'),pola=document.getElementById('pola'),lens=document.getElementById('iris');
   var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
   var NS='http://www.w3.org/2000/svg',N=7;
 
@@ -381,15 +390,20 @@ body.live .links li{animation:rise .55s var(--ease) backwards;animation-delay:ca
     intro.classList.add('shoot');
     if(reduce){setTimeout(reveal,150);return}
     cam.classList.add('recoil');
-    // لقطة سريعة: الريش تنقفل، ثم تنفتح على الشاشة وتظهر الحسابات
-    var a=lr,sv=cam.querySelector('svg').getBoundingClientRect();
-    var cx=sv.left+sv.width*232/400,cy=sv.top+sv.height*168/290;
-    var W=innerWidth,H=innerHeight,R=Math.max(Math.hypot(cx,cy),Math.hypot(W-cx,cy),Math.hypot(cx,H-cy),Math.hypot(W-cx,H-cy))*1.05;
-    tween(110,easeIn,function(k){setLens(a*(1-k))},function(){
-      var fxB=blades(fxg,['fxA','fxB'],'rgba(250,228,140,.6)',1.4);
-      drawIris(fxB,cx,cy,0,R,R*2.4);fx.classList.add('on');reveal();
-      tween(520,easeOut,function(k){drawIris(fxB,cx,cy,R*k,R,R*2.4)},function(){fx.classList.remove('on');fxg.innerHTML=''});
-    });
+    // لقطة: الريش ترمش، تطلع صورة بولارويد، تتحمّض، ثم تكبر وتصير صفحة الحسابات
+    var a=lr;
+    tween(70,easeIn,function(k){setLens(a*(1-k)+1*k)},function(){tween(160,easeOut,function(k){setLens(1+(REST-1)*k)})});
+    setTimeout(function(){pola.classList.add('dev')},260);
+    setTimeout(function(){
+      var r=pola.getBoundingClientRect(),W=innerWidth,H=innerHeight;
+      var fly=pola.cloneNode(true);fly.removeAttribute('id');fly.classList.add('pola-fly','dev');
+      fly.style.cssText='left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;transition:none;transform:rotate(-5deg)';
+      document.body.appendChild(fly);pola.style.visibility='hidden';
+      var sc=Math.max(W/r.width,H/r.height)*1.15,dx=W/2-(r.left+r.width/2),dy=H/2-(r.top+r.height/2);
+      reveal();
+      var an=fly.animate([{transform:'rotate(-5deg)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px) rotate(0) scale('+sc*.55+')',opacity:1,offset:.5},{transform:'translate('+dx+'px,'+dy+'px) scale('+sc+')',opacity:0}],{duration:520,easing:'cubic-bezier(.55,0,.35,1)',fill:'forwards'});
+      an.onfinish=function(){fly.remove()};
+    },560);
   }
   shotBtn.addEventListener('click',enter);
 
